@@ -1,0 +1,31 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace RecruitmentInterviewManagementSystem.Models;
+
+public partial class User
+{
+    public Guid Id { get; set; }
+
+    public string Email { get; set; } = null!;
+
+    public string PasswordHash { get; set; } = null!;
+
+    public string? FullName { get; set; }
+
+    public string? PhoneNumber { get; set; }
+
+    public int? Role { get; set; }
+
+    public bool? IsActive { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
+
+    public string Salt { get; set; } = null!;
+
+    public virtual CandidateProfile? CandidateProfile { get; set; }
+
+    public virtual EmployerProfile? EmployerProfile { get; set; }
+
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+}
