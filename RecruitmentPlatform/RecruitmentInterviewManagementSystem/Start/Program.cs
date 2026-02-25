@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
 using RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement;
+using RecruitmentInterviewManagementSystem.Infastructure.Repository;
+using RecruitmentInterviewManagementSystem.Domain.InterfacesRepository;
 using RecruitmentInterviewManagementSystem.Models;
 
 namespace RecruitmentInterviewManagementSystem.Start
@@ -13,31 +15,39 @@ namespace RecruitmentInterviewManagementSystem.Start
 
             var builder = WebApplication.CreateBuilder(args);
 
-
+            // ================= DATABASE =================
             builder.Services.AddDbContext<FakeTopcvContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration["SQLURL"]);
             });
 
-            // thay url của you vào file .evn 
-            //Data Source=PHAMTRUNGDUC\\SQLEXPRESS;Initial Catalog=FakeTOPCV;Persist Security Info=True;User ID=sa;Password=123;Trust Server Certificate=True
-            // đổi tên server and your account and password
+            // ================= CORS (FIXED) =================
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:5173") // ⚠ sửa port ở đây
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
 
-
-       
+            // ================= DEPENDENCY INJECTION =================
             builder.Services.AddScoped<ILogin, Login>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<AuthService>();
 
-
+            // ================= CONTROLLERS =================
             builder.Services.AddControllers();
 
             var app = builder.Build();
 
-           
-
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseCors("AllowFrontend"); // ⚠ phải trước Authorization
 
+            app.UseAuthorization();
 
             app.MapControllers();
 
