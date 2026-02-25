@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecruitmentInterviewManagementSystem.Applications.Interface;
+using RecruitmentInterviewManagementSystem.Applications.Features.Auth;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
 using RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement;
 using RecruitmentInterviewManagementSystem.Models;
@@ -13,31 +15,33 @@ namespace RecruitmentInterviewManagementSystem.Start
 
             var builder = WebApplication.CreateBuilder(args);
 
-
+            // Database
             builder.Services.AddDbContext<FakeTopcvContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration["SQLURL"]);
             });
 
-            // thay url của you vào file .evn 
-            //Data Source=PHAMTRUNGDUC\\SQLEXPRESS;Initial Catalog=FakeTOPCV;Persist Security Info=True;User ID=sa;Password=123;Trust Server Certificate=True
-            // đổi tên server and your account and password
-
-
-       
+            // Services
             builder.Services.AddScoped<ILogin, Login>();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
+            //GOOGLE LOGIN
+            builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 
             builder.Services.AddControllers();
 
             var app = builder.Build();
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
 
-           
-
+            // Middleware
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
