@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Compile Remove="Applications\Features\Auth\DTO\RegisterRequest.cs" />
+    <Compile Remove="Infastructure\Models\LoginRequest.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +32,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
   </ItemGroup>
 
 </Project>
