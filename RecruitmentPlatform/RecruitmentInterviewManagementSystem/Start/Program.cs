@@ -25,7 +25,7 @@ namespace RecruitmentInterviewManagementSystem.Start
                 options.UseSqlServer(builder.Configuration["SQLURL"]);
             });
 
-            // thay url của you vào file .evn 
+            // thay url của you vào file .env
             //Data Source=PHAMTRUNGDUC\\SQLEXPRESS;Initial Catalog=FakeTOPCV;Persist Security Info=True;User ID=sa;Password=123;Trust Server Certificate=True
             // đổi tên server and your account and password
 
