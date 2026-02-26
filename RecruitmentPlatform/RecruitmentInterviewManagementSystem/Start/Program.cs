@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitmentInterviewManagementSystem.Applications.Features.BookingInterviewSlot.Interfaces;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
+using RecruitmentInterviewManagementSystem.Applications.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Services;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPostDetail.Interface;
@@ -8,10 +9,10 @@ using RecruitmentInterviewManagementSystem.Domain.InterfacesRepository;
 using RecruitmentInterviewManagementSystem.Infastructure.Repository;
 using RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement;
 using RecruitmentInterviewManagementSystem.Models;
-
-
-
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using RecruitmentInterviewManagementSystem.Applications.Features.Auth;
 namespace RecruitmentInterviewManagementSystem.Start
 {
     public class Program
@@ -55,6 +56,35 @@ namespace RecruitmentInterviewManagementSystem.Start
             builder.Services.AddScoped<ILogin, Login>();
             builder.Services.AddScoped<IViewListJobPost, ViewListJobPostService>();
             builder.Services.AddScoped<IViewListSlotInterviewRoleEmployer, ViewListSlotInterviewRoleEmployer>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IGoogleTokenValidator, GoogleTokenValidator>();
+            builder.Services.AddScoped<IJwtService, JwtService>();
+            builder.Services.AddScoped<GoogleAuthService>();
+            builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
+            //JWT AUTHENTICATION
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+
+                        ValidIssuer = builder.Configuration["Authentication:Jwt:Issuer"],
+                        ValidAudience = builder.Configuration["Authentication:Jwt:Audience"],
+
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(
+                                builder.Configuration["Authentication:Jwt:Secret"]
+                            ))
+                    };
+                });
 
             builder.Services.AddScoped<IJobPostDetailService, JobPostDetailService>();
             builder.Services.AddScoped<ICreateNewInterviewSlot, CreateNewInterviewSlot>();
@@ -62,7 +92,16 @@ namespace RecruitmentInterviewManagementSystem.Start
             builder.Services.AddScoped<IRemoveInterviewSlot, RemoveInterviewSlot>();
             var app = builder.Build();
 
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+
             // --- 4. CẤU HÌNH HTTP REQUEST PIPELINE (MIDDLEWARE) ---
+            // Chuyển hướng HTTPS (Có thể tắt nếu chạy local gặp lỗi chứng chỉ)
+            app.UseHttpsRedirection();
 
             // Hỗ trợ file tĩnh (nếu có lưu trữ ảnh/logo trong dự án)
             app.UseStaticFiles();
@@ -73,10 +112,10 @@ namespace RecruitmentInterviewManagementSystem.Start
             // Kích hoạt CORS ngay sau UseRouting
             app.UseCors("AllowFrontend");
 
-            // Chuyển hướng HTTPS (Có thể tắt nếu chạy local gặp lỗi chứng chỉ)
-            app.UseHttpsRedirection();
+        
 
             // Xử lý quyền hạn
+            app.UseAuthentication();
             app.UseAuthorization();
 
             // Map các endpoint của Controller
