@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using RecruitmentInterviewManagementSystem.Infastructure.Models;
 
 namespace RecruitmentInterviewManagementSystem.Models;
 
@@ -56,6 +57,12 @@ public partial class FakeTopcvContext : DbContext
     public virtual DbSet<Skill> Skills { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+
+    public virtual DbSet<Interviews> Interview { get; set; }
+
+    public virtual DbSet<InterviewsSlots> InterviewsSlots { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

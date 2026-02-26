@@ -2,6 +2,10 @@
 using RecruitmentInterviewManagementSystem.Applications.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.Auth;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
+using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Interface;
+using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Services;
+using RecruitmentInterviewManagementSystem.Domain.InterfacesRepository;
+using RecruitmentInterviewManagementSystem.Infastructure.Repository;
 using RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement;
 using RecruitmentInterviewManagementSystem.Models;
 
@@ -11,39 +15,64 @@ namespace RecruitmentInterviewManagementSystem.Start
     {
         public static void Main(string[] args)
         {
+            // Load biến môi trường từ file .env (SQLURL, v.v.)
             DotNetEnv.Env.Load();
 
             var builder = WebApplication.CreateBuilder(args);
 
-            // Database
+            // --- 1. CẤU HÌNH DATABASE ---
             builder.Services.AddDbContext<FakeTopcvContext>(options =>
             {
+                // Lấy chuỗi kết nối từ biến môi trường
                 options.UseSqlServer(builder.Configuration["SQLURL"]);
             });
 
-            builder.Services.AddScoped<ILogin, Login>();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            // --- 2. CẤU HÌNH CORS ---
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
 
-            //GOOGLE LOGIN
-            builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
-
+            // Thêm dịch vụ Controller
             builder.Services.AddControllers();
 
-            var app = builder.Build();
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            // --- 3. ĐĂNG KÝ DEPENDENCY INJECTION (DI) ---
+            // Đăng ký Repository để Controller có thể gọi được _jobPostRepository
+            builder.Services.AddScoped<IJobPostRepository, JobPostRepository>();
 
-            // Middleware
+            // Đăng ký các dịch vụ thuộc tầng Application (Features)
+            builder.Services.AddScoped<ILogin, Login>();
+            builder.Services.AddScoped<IViewListJobPost, ViewListJobPostService>();
+
+            var app = builder.Build();
+
+            // --- 4. CẤU HÌNH HTTP REQUEST PIPELINE (MIDDLEWARE) ---
+
+            // Hỗ trợ file tĩnh (nếu có lưu trữ ảnh/logo trong dự án)
+            app.UseStaticFiles();
+
+            // Bật Routing trước khi dùng CORS/Auth
+            app.UseRouting();
+
+            // Kích hoạt CORS ngay sau UseRouting
+            app.UseCors("AllowFrontend");
+
+            // Chuyển hướng HTTPS (Có thể tắt nếu chạy local gặp lỗi chứng chỉ)
             app.UseHttpsRedirection();
 
+            // Xử lý quyền hạn
             app.UseAuthorization();
 
+            // Map các endpoint của Controller
             app.MapControllers();
 
+            // Chạy ứng dụng
             app.Run();
         }
     }
