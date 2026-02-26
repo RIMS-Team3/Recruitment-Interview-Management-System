@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RecruitmentInterviewManagementSystem.Infastructure.Models;
+using System;
 using System.Collections.Generic;
 
 namespace RecruitmentInterviewManagementSystem.Models;
@@ -22,4 +23,8 @@ public partial class Application
     public virtual Cv Cv { get; set; } = null!;
 
     public virtual JobPost Job { get; set; } = null!;
+
+
+    public virtual ICollection<Interviews>? Interviews { get; set; }
+
 }
