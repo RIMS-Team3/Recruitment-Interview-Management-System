@@ -1,6 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Interface;
-using RecruitmentInterviewManagementSystem.Applications.Features.Auth;
+using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
+using RecruitmentInterviewManagementSystem.Applications.Features.BookingInterviewSlot.Interfaces;
+using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
+using RecruitmentInterviewManagementSystem.Applications.Features.BookingInterviewSlot.Interfaces;
+
+using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
+using RecruitmentInterviewManagementSystem.Applications.Features.BookingInterviewSlot.Interfaces;
+
+using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Services;
