@@ -33,6 +33,9 @@ public partial class JobPost
 
     public DateTime? CreatedAt { get; set; }
 
+    public int Experience { get; set; } = 0;
+
+
     public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
 
     public virtual Company Company { get; set; } = null!;

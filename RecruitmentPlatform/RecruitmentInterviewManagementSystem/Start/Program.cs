@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecruitmentInterviewManagementSystem.Applications.Features.BookingInterviewSlot.Interfaces;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Services;
+using RecruitmentInterviewManagementSystem.Applications.Features.JobPostDetail.Interface;
 using RecruitmentInterviewManagementSystem.Domain.InterfacesRepository;
 using RecruitmentInterviewManagementSystem.Infastructure.Repository;
 using RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement;
@@ -47,11 +49,13 @@ namespace RecruitmentInterviewManagementSystem.Start
             // --- 3. ĐĂNG KÝ DEPENDENCY INJECTION (DI) ---
             // Đăng ký Repository để Controller có thể gọi được _jobPostRepository
             builder.Services.AddScoped<IJobPostRepository, JobPostRepository>();
+            builder.Services.AddScoped<IJobPostDetailRepository, JobPostDetailRepository>();
+
 
             // Đăng ký các dịch vụ thuộc tầng Application (Features)
             builder.Services.AddScoped<ILogin, Login>();
             builder.Services.AddScoped<IViewListJobPost, ViewListJobPostService>();
-
+            builder.Services.AddScoped<IViewListSlotInterviewRoleEmployer, ViewListSlotInterviewRoleEmployer>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IGoogleTokenValidator, GoogleTokenValidator>();
             builder.Services.AddScoped<IJwtService, JwtService>();
@@ -82,6 +86,10 @@ namespace RecruitmentInterviewManagementSystem.Start
                     };
                 });
 
+            builder.Services.AddScoped<IJobPostDetailService, JobPostDetailService>();
+            builder.Services.AddScoped<ICreateNewInterviewSlot, CreateNewInterviewSlot>();
+            builder.Services.AddScoped<IUpdateInterviewSlot, UpdateInterviewSlot>();
+            builder.Services.AddScoped<IRemoveInterviewSlot, RemoveInterviewSlot>();
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())

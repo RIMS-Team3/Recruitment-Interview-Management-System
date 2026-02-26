@@ -18,6 +18,10 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.Models
         [Required]
         public bool IsBooked { get; set; } = false;
 
+
+
+        public Guid IdCompany { get; set; }
+
         public Interviews? Interview { get; set; }
     }
 }
