@@ -2,15 +2,13 @@
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Services;
+using RecruitmentInterviewManagementSystem.Applications.Features.JobPostDetail.Interface;
 using RecruitmentInterviewManagementSystem.Domain.InterfacesRepository;
 using RecruitmentInterviewManagementSystem.Infastructure.Repository;
 using RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement;
 using RecruitmentInterviewManagementSystem.Models;
 
-//cua phuc
-using RecruitmentInterviewManagementSystem.Domain.InterfacesRepository;
-using RecruitmentInterviewManagementSystem.Infastructure.Repository;
-using RecruitmentInterviewManagementSystem.Applications.Features.JobPostDetail.Interface;
+
 
 
 namespace RecruitmentInterviewManagementSystem.Start
@@ -49,10 +47,13 @@ namespace RecruitmentInterviewManagementSystem.Start
             // --- 3. ĐĂNG KÝ DEPENDENCY INJECTION (DI) ---
             // Đăng ký Repository để Controller có thể gọi được _jobPostRepository
             builder.Services.AddScoped<IJobPostRepository, JobPostRepository>();
+            builder.Services.AddScoped<IJobPostDetailRepository, JobPostDetailRepository>();
+
 
             // Đăng ký các dịch vụ thuộc tầng Application (Features)
             builder.Services.AddScoped<ILogin, Login>();
             builder.Services.AddScoped<IViewListJobPost, ViewListJobPostService>();
+            builder.Services.AddScoped<IJobPostDetailService, JobPostDetailService>();
 
             var app = builder.Build();
 

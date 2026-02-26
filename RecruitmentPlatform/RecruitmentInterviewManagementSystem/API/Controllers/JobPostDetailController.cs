@@ -5,11 +5,11 @@ namespace RecruitmentInterviewManagementSystem.API.Controllers
 {
     [ApiController]
     [Route("api/jobs")]
-    public class JobPostController : ControllerBase
+    public class JobPostDetailController : ControllerBase
     {
         private readonly IJobPostDetailService _service;
 
-        public JobPostController(IJobPostDetailService service)
+        public JobPostDetailController(IJobPostDetailService service)
         {
             _service = service;
         }

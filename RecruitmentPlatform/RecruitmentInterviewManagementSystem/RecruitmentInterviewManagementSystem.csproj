@@ -7,9 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Applications\JobPostDetail\**" />
+    <Content Remove="Applications\JobPostDetail\**" />
+    <EmbeddedResource Remove="Applications\JobPostDetail\**" />
+    <None Remove="Applications\JobPostDetail\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="API\Middlawares\" />
     <Folder Include="Applications\Features\JobPost\Validation\" />
-    <Folder Include="Applications\JobPostDetail\Validate\" />
   </ItemGroup>
 
   <ItemGroup>

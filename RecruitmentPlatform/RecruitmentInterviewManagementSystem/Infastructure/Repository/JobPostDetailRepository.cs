@@ -37,6 +37,7 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.Repository
                 IsActive = job.IsActive,
                 ViewCount = job.ViewCount,
                 CreatedAt = job.CreatedAt,
+                Experience = job.Experience,
 
                 Company = new CompanyDTO
                 {
