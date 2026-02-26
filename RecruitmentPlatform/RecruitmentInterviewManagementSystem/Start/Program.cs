@@ -57,7 +57,7 @@ namespace RecruitmentInterviewManagementSystem.Start
             builder.Services.AddScoped<IViewListSlotInterviewRoleEmployer, ViewListSlotInterviewRoleEmployer>();
 
             builder.Services.AddScoped<IJobPostDetailService, JobPostDetailService>();
-
+           
             var app = builder.Build();
 
             // --- 4. CẤU HÌNH HTTP REQUEST PIPELINE (MIDDLEWARE) ---
@@ -76,6 +76,8 @@ namespace RecruitmentInterviewManagementSystem.Start
 
             // Xử lý quyền hạn
             app.UseAuthorization();
+
+            app.UseCors("AllowReactApp");
 
             // Map các endpoint của Controller
             app.MapControllers();
