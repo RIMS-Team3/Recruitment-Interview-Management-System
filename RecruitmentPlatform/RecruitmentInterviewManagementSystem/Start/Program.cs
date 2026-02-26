@@ -1,16 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Interface;
-using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
-using RecruitmentInterviewManagementSystem.Applications.Features.BookingInterviewSlot.Interfaces;
-using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
-using RecruitmentInterviewManagementSystem.Applications.Features.BookingInterviewSlot.Interfaces;
-
-using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
-using RecruitmentInterviewManagementSystem.Applications.Features.BookingInterviewSlot.Interfaces;
-
-using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
-using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Services;
 using RecruitmentInterviewManagementSystem.Domain.InterfacesRepository;
@@ -20,7 +10,7 @@ using RecruitmentInterviewManagementSystem.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
+using RecruitmentInterviewManagementSystem.Applications.Features.Auth;
 namespace RecruitmentInterviewManagementSystem.Start
 {
     public class Program
