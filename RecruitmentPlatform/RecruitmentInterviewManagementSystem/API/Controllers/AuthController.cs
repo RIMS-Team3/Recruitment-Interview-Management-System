@@ -23,13 +23,13 @@ public class AuthController : ControllerBase
             return BadRequest("IdToken is required");
         }
 
-        var payload = await _googleAuthService.VerifyTokenAsync(request.IdToken);
+        var result = await _googleAuthService.LoginAsync(request.IdToken);
 
         return Ok(new
         {
-            email = payload.Email,
-            name = payload.Name,
-            picture = payload.Picture
+            accessToken = result.AccessToken,
+            email = result.Email,
+            fullName = result.FullName
         });
     }
 }

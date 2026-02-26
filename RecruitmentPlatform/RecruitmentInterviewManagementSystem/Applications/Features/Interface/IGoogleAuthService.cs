@@ -1,8 +1,9 @@
 ﻿using Google.Apis.Auth;
+using RecruitmentInterviewManagementSystem.Applications.Features.Auth.DTO;
 
 namespace RecruitmentInterviewManagementSystem.Applications.Interface;
 
 public interface IGoogleAuthService
 {
-    Task<GoogleJsonWebSignature.Payload> VerifyTokenAsync(string idToken);
+    Task<LoginResponse> LoginAsync(string idToken);
 }

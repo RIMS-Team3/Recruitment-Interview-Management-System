@@ -1,6 +1,6 @@
-﻿namespace RecruitmentInterviewManagementSystem.Applications.Features.Interface
+﻿using RecruitmentInterviewManagementSystem.Domain.Entities;
+
+public interface IJwtService
 {
-    public interface IJwtService
-    {
-    }
+    string GenerateToken(UserEntity user);
 }
