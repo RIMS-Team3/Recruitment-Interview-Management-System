@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="API\Middlawares\" />
+    <Folder Include="Applications\Features\JobPost\Validation\" />
     <Folder Include="Applications\JobPostDetail\Validate\" />
   </ItemGroup>
 

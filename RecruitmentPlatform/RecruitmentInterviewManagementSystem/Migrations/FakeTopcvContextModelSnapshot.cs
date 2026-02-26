@@ -569,6 +569,9 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Experience")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("ExpireAt")
                         .HasColumnType("datetime");
 
