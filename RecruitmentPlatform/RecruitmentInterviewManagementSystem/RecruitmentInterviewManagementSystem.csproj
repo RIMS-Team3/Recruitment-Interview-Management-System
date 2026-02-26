@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <Folder Include="API\Middlawares\" />
-    <Folder Include="Applications\Features\JobPost\Validation\" />
   </ItemGroup>
 
   <ItemGroup>

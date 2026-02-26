@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecruitmentInterviewManagementSystem.Applications.Features.BookingInterviewSlot.Interfaces;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Services;
@@ -53,6 +54,8 @@ namespace RecruitmentInterviewManagementSystem.Start
             // Đăng ký các dịch vụ thuộc tầng Application (Features)
             builder.Services.AddScoped<ILogin, Login>();
             builder.Services.AddScoped<IViewListJobPost, ViewListJobPostService>();
+            builder.Services.AddScoped<IViewListSlotInterviewRoleEmployer, ViewListSlotInterviewRoleEmployer>();
+
             builder.Services.AddScoped<IJobPostDetailService, JobPostDetailService>();
 
             var app = builder.Build();
