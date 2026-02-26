@@ -57,7 +57,9 @@ namespace RecruitmentInterviewManagementSystem.Start
             builder.Services.AddScoped<IViewListSlotInterviewRoleEmployer, ViewListSlotInterviewRoleEmployer>();
 
             builder.Services.AddScoped<IJobPostDetailService, JobPostDetailService>();
-           
+            builder.Services.AddScoped<ICreateNewInterviewSlot, CreateNewInterviewSlot>();
+            builder.Services.AddScoped<IUpdateInterviewSlot, UpdateInterviewSlot>();
+            builder.Services.AddScoped<IRemoveInterviewSlot, RemoveInterviewSlot>();
             var app = builder.Build();
 
             // --- 4. CẤU HÌNH HTTP REQUEST PIPELINE (MIDDLEWARE) ---

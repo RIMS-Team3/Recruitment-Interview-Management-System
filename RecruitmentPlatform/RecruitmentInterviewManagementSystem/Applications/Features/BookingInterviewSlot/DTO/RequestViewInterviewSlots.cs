@@ -5,7 +5,7 @@
 
         public Guid IdCompany { get; set; }
 
-        public DateTime? ChooesDate { get; set; }
+        public DateTime? ChooesDate { get; set; }  = DateTime.Now;
 
         public int CurrentPage { get; set; } = 1 ;
     }

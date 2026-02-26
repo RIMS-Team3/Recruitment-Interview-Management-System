@@ -49,6 +49,7 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
                 .Take(pageSize)
                 .Select(s => new InterviewSlotItem
                 {
+                    IdInterviewSlot  = s.IdInterviewSlot,
                     StartTime = s.StartTime,
                     EndTime = s.EndTime,
                     IsBooked = s.IsBooked,
