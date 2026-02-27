@@ -1,18 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using RecruitmentInterviewManagementSystem.Applications.Features.Auth;
 using RecruitmentInterviewManagementSystem.Applications.Features.BookingInterviewSlot.Interfaces;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
-using RecruitmentInterviewManagementSystem.Applications.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPost.Services;
 using RecruitmentInterviewManagementSystem.Applications.Features.JobPostDetail.Interface;
+using RecruitmentInterviewManagementSystem.Applications.Interface;
 using RecruitmentInterviewManagementSystem.Domain.InterfacesRepository;
 using RecruitmentInterviewManagementSystem.Infastructure.Repository;
 using RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement;
 using RecruitmentInterviewManagementSystem.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
-using RecruitmentInterviewManagementSystem.Applications.Features.Auth;
+using System.IdentityModel.Tokens.Jwt;
 namespace RecruitmentInterviewManagementSystem.Start
 {
     public class Program
@@ -59,12 +61,19 @@ namespace RecruitmentInterviewManagementSystem.Start
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IGoogleTokenValidator, GoogleTokenValidator>();
             builder.Services.AddScoped<IJwtService, JwtService>();
-            builder.Services.AddScoped<GoogleAuthService>();
             builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             //JWT AUTHENTICATION
+
+
+
+            var jwtSecret = builder.Configuration["Authentication:Jwt:Secret"]
+                            ?? throw new Exception("JWT Secret not configured");
+
+            var jwtIssuer = builder.Configuration["Authentication:Jwt:Issuer"];
+            var jwtAudience = builder.Configuration["Authentication:Jwt:Audience"];
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -76,13 +85,15 @@ namespace RecruitmentInterviewManagementSystem.Start
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
 
-                        ValidIssuer = builder.Configuration["Authentication:Jwt:Issuer"],
-                        ValidAudience = builder.Configuration["Authentication:Jwt:Audience"],
+                        ValidIssuer = jwtIssuer,
+                        ValidAudience = jwtAudience,
 
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(
-                                builder.Configuration["Authentication:Jwt:Secret"]
-                            ))
+                            Encoding.UTF8.GetBytes(jwtSecret)
+                        ),
+
+                        RoleClaimType = ClaimTypes.Role,
+                        NameClaimType = JwtRegisteredClaimNames.Email
                     };
                 });
 
