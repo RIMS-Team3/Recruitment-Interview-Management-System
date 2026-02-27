@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RecruitmentInterviewManagementSystem.Applications.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.Auth.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RecruitmentInterviewManagementSystem.API.Controllers;
 
@@ -14,8 +15,9 @@ public class AuthController : ControllerBase
     {
         _googleAuthService = googleAuthService;
     }
-
+    [AllowAnonymous]
     [HttpPost("google")]
+
     public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
     {
         if (string.IsNullOrEmpty(request.IdToken))

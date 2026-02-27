@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using RecruitmentInterviewManagementSystem.Domain.Entities;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
+using RecruitmentInterviewManagementSystem.Domain.Enums;
 
 namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
 {
@@ -36,7 +37,7 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim(ClaimTypes.Role,((Role)user.Role).ToString()),
                 new Claim("fullName", user.FullName)
             };
 
