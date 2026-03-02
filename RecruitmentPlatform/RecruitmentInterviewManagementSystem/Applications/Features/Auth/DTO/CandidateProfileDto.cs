@@ -7,6 +7,7 @@
         public DateOnly? DateOfBirth { get; set; }
         public int? Gender { get; set; }
         public string? Address { get; set; }
+        public string? AvatarUrl { get; set; }
         public int? ExperienceYears { get; set; }
         public decimal? CurrentSalary { get; set; }
         public decimal? DesiredSalary { get; set; }

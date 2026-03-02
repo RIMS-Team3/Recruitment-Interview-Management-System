@@ -1,10 +1,11 @@
-﻿namespace RecruitmentInterviewManagementSystem.Applications.Features.Interface
+﻿using Microsoft.AspNetCore.Http;
+
+namespace RecruitmentInterviewManagementSystem.Applications.Features.Interface
 {
     public interface IMinIOCV
     {
         Task<string> UploadAsync(IFormFile file);
-        Task DeleteAsync(string objectName);
-
         Task<string> GetUrlImage(string bucket, string imageName);
+        Task DeleteAsync(string objectName);
     }
 }
