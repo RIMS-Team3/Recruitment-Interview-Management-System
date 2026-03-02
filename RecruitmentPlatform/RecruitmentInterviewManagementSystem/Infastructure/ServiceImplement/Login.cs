@@ -64,6 +64,7 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
 
             return new LoginResponse
             {
+                UserId = user.Id,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
                 Email = user.Email,
