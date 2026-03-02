@@ -1,9 +1,10 @@
-﻿namespace RecruitmentInterviewManagementSystem.Applications.Features.Auth.DTO
+﻿public class LoginResponse
 {
-    public class LoginResponse
-    {
-        public string AccessToken { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string FullName { get; set; } = string.Empty;
-    }
+    public Guid UserId { get; set; }
+    public string AccessToken { get; set; } = null!;
+    public string RefreshToken { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string FullName { get; set; } = null!;
+    public int Role { get; set; }
+    
 }
