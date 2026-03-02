@@ -16,6 +16,7 @@ using System.Security.Claims;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using RecruitmentInterviewManagementSystem.API.DI;
+
 namespace RecruitmentInterviewManagementSystem.Start
 {
     public class Program
@@ -56,6 +57,8 @@ namespace RecruitmentInterviewManagementSystem.Start
                  .WithScopedLifetime());
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<IRegister, Register>();
+            builder.Services.AddScoped<ILogin, Login>();
 
 
             var jwtSecret = builder.Configuration["Authentication:Jwt:Secret"]
