@@ -1,9 +1,10 @@
 using RecruitmentInterviewManagementSystem.Applications.Features.ApplyJob.DTO;
+using static RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement.ApplicationService;
 
 namespace RecruitmentInterviewManagementSystem.Applications.Features.ApplyJob.Interface
 {
     public interface IApplicationService
     {
-        Task<string> ApplyForJobAsync(ApplyJobRequestDto request);
+        Task<ResultStatus> ApplyForJobAsync(ApplyJobRequestDto request);
     }
 }

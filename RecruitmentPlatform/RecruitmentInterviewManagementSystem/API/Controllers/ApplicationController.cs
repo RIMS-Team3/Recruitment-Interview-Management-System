@@ -13,24 +13,33 @@ namespace RecruitmentInterviewManagementSystem.Controllers
     public class ApplicationController : ControllerBase
     {
         private readonly IApplicationService _applicationService;
+        private readonly IGetCandidateID _getIdCadidate;
 
-        public ApplicationController(IApplicationService applicationService)
+        public ApplicationController(IApplicationService applicationService , IGetCandidateID getCandidateID)
         {
             _applicationService = applicationService;
+            _getIdCadidate = getCandidateID;
         }
 
         [HttpPost("apply")]
         public async Task<IActionResult> Apply([FromBody] ApplyJobRequestDto request)
         {
-            try
-            {
+            
                 var result = await _applicationService.ApplyForJobAsync(request);
-                return Ok(new { success = true, message = result });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = ex.Message });
-            }
+
+            return Ok(new {IsSuccess  = result.IsSuccess, Message  = result.Message});
+              
+                   }
+
+        [HttpGet("candidate/{id}")] 
+        public async Task<IActionResult> GetIDCandidate([FromRoute]Guid id)
+        {
+
+            var idCandidate = await _getIdCadidate.GetCandidateId(id);
+
+            return Ok(idCandidate);
         }
-    }
+
+
+        }
 }

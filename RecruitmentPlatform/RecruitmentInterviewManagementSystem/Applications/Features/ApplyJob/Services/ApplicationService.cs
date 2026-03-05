@@ -1,4 +1,5 @@
-﻿using RecruitmentInterviewManagementSystem.Applications.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using RecruitmentInterviewManagementSystem.Applications.DTOs;
 using RecruitmentInterviewManagementSystem.Applications.Features.ApplyJob.DTO;
 using RecruitmentInterviewManagementSystem.Applications.Features.ApplyJob.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Interface;
@@ -13,15 +14,29 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
     public class ApplicationService : IApplicationService
     {
         private readonly IApplicationRepository _applicationRepository;
+        private readonly FakeTopcvContext _db;
 
-        public ApplicationService(IApplicationRepository applicationRepository)
+        public ApplicationService(IApplicationRepository applicationRepository,FakeTopcvContext fakeTopcvContext)
         {
             _applicationRepository = applicationRepository;
+            _db = fakeTopcvContext;
         }
-
-        public async Task<string> ApplyForJobAsync(ApplyJobRequestDto request)
+        public async Task<ResultStatus> ApplyForJobAsync(ApplyJobRequestDto request)
         {
-            // 1. Tạo bản ghi Application (Bỏ qua bước check đã apply)
+            var alreadyApplied = await _db.Applications.AnyAsync(a =>
+                a.CandidateId == request.CandidateId &&
+                a.JobId == request.JobId);
+
+            if (alreadyApplied)
+            {
+                return new ResultStatus
+                {
+
+                    IsSuccess = false,
+                    Message = "Bạn đã ứng tuyển vào công việc này rồi!"
+                };
+            }
+
             var newApplication = new Application
             {
                 Id = Guid.NewGuid(),
@@ -29,15 +44,25 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
                 CandidateId = request.CandidateId,
                 Cvid = request.CvId,
                 Status = (int)ApplicationStatus.Pending,
-                AppliedAt = DateTime.Now,
-                // Đảm bảo không có trường nào khác bị bắt buộc (Required) trong DB mà đang bị null
+                AppliedAt = DateTime.UtcNow
             };
 
-            // 2. Lưu vào Database
-            await _applicationRepository.CreateApplicationAsync(newApplication);
-            await _applicationRepository.SaveChangesAsync();
+            await _db.Applications.AddAsync(newApplication);
+            await _db.SaveChangesAsync();
 
-            return "Ứng tuyển thành công!";
+            return new ResultStatus
+            {
+                IsSuccess = true,
+                Message = "Ứng tuyển thành công!"
+            };
+        }
+
+
+        public class ResultStatus
+        {
+            public bool IsSuccess { get; set; }
+
+            public string Message { get; set; }
         }
     }
 }
