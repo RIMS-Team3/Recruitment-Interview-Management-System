@@ -24,6 +24,7 @@ namespace RecruitmentInterviewManagementSystem.Repositories
                               AppliedAt = app.AppliedAt,
                               Status = app.Status
                           })
+
                           .OrderByDescending(a => a.AppliedAt)
                           .ToListAsync();
         }
