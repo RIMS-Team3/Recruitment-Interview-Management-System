@@ -126,6 +126,26 @@ public class AuthController : ControllerBase
 
         user.Role = request.Role;
 
+        // ================= CANDIDATE =================
+        if (request.Role == 2) // Candidate
+        {
+            var exists = _context.CandidateProfiles
+                .Any(c => c.UserId == userId);
+
+            if (!exists)
+            {
+                var candidate = new CandidateProfile
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId
+                };
+
+                _context.CandidateProfiles.Add(candidate);
+            }
+        }
+
+
+
         await _context.SaveChangesAsync();
 
         var userEntity = new UserEntity(
