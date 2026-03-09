@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RecruitmentInterviewManagementSystem.Models;
 
@@ -11,9 +12,11 @@ using RecruitmentInterviewManagementSystem.Models;
 namespace RecruitmentInterviewManagementSystem.Migrations
 {
     [DbContext(typeof(FakeTopcvContext))]
-    partial class FakeTopcvContextModelSnapshot : ModelSnapshot
+    [Migration("20260306034123_v8")]
+    partial class v8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,30 +39,6 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.HasIndex("SkillId");
 
                     b.ToTable("JobSkills", (string)null);
-                });
-
-            modelBuilder.Entity("RecruitmentInterviewManagementSystem.Infastructure.Models.Banner", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ImageName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Banners");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Infastructure.Models.BookingLink", b =>
@@ -199,6 +178,9 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.Property<string>("Address")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("CurrentSalary")
                         .HasColumnType("decimal(18, 2)");
@@ -407,9 +389,6 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.Property<string>("Position")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("TemplateId")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
