@@ -1,6 +1,7 @@
 ﻿using RecruitmentInterviewManagementSystem.Infastructure.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RecruitmentInterviewManagementSystem.Models;
 
@@ -13,7 +14,7 @@ public partial class CandidateProfile
     public DateOnly? DateOfBirth { get; set; }
 
     public int? Gender { get; set; }
-
+    [NotMapped]
     public string? AvatarUrl { get; set; }
 
     public string? Address { get; set; }
