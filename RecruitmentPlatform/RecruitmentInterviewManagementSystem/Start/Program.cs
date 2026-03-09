@@ -62,8 +62,8 @@ namespace RecruitmentInterviewManagementSystem.Start
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddMinio(configureClient => configureClient
-                 .WithEndpoint("localhost:9000")
-                 .WithCredentials("admin", "admin123") // Đảm bảo khớp với lệnh Docker của bạn
+                 .WithEndpoint(builder.Configuration["Minio:Endpoint"])
+                 .WithCredentials(builder.Configuration["Minio:AccessKey"], builder.Configuration["Minio:SecretKey"])
                  .WithSSL(false)
                  .Build());
             builder.Services.AddScoped<IMinIOCV, MinIOfaketopcv>();
