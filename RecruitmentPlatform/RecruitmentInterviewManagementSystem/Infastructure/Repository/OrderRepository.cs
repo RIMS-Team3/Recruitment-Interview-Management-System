@@ -7,17 +7,35 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.Repository
 {
     public class OrderRepository : IOrderRepository
     {
-        private readonly FakeTopcvContext _dbContext; // Thay bằng DbContext thực tế của bạn
+        private readonly FakeTopcvContext _context; 
 
-        public OrderRepository(FakeTopcvContext dbContext)
+        public OrderRepository(FakeTopcvContext context)
         {
-            _dbContext = dbContext;
+            _context = context;
         }
 
-        public async Task<Order?> GetOrderWithDetailsByIdAsync(Guid orderId)
+        public async Task<(List<Order> Orders, int TotalCount)> GetOrdersWithDetailsByEmployerIdAsync(Guid employerId, int pageNumber, int pageSize)
         {
-            return await _dbContext.Orders
-                .Include(o => o.OrderItems) // Join với bảng OrderItems
+            var query = _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ServicePackage)
+                .Where(o => o.EmployerId == employerId);
+
+            int totalCount = await query.CountAsync();
+
+            var orders = await query
+                .OrderByDescending(o => o.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize) 
+                .ToListAsync();
+            return (orders, totalCount);
+        }
+
+        public async Task<Order?> GetOrderDetailsByIdAsync(Guid orderId)
+        {
+            return await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ServicePackage)
                 .FirstOrDefaultAsync(o => o.Id == orderId);
         }
     }

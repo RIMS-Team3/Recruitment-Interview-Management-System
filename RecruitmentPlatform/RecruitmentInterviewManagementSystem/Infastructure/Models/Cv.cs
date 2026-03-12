@@ -49,8 +49,6 @@ public partial class Cv
 
     public bool IsDeleted { get; set; } = false;
 
-    //public bool IsMain { get; set; } = false;
-
     public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
 
     public virtual CandidateProfile Candidate { get; set; } = null!;

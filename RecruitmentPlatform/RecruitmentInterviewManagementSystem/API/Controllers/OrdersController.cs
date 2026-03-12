@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RecruitmentInterviewManagementSystem.Applications.Features.Order.Interface;
 using RecruitmentInterviewManagementSystem.Domain.InterfacesRepository;
 using RecruitmentInterviewManagementSystem.Models;
 using System.Security.Claims;
@@ -21,10 +22,9 @@ namespace RecruitmentInterviewManagementSystem.API.Controllers
         }
 
         [HttpGet]
-        [Authorize] // Bắt buộc phải có token
-        public async Task<IActionResult> GetMyOrders()
+        [Authorize]
+        public async Task<IActionResult> GetMyOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            // 1. Lấy UserId từ Token (Giống hệt cách bạn vừa gửi)
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                             ?? User.FindFirst("id")?.Value
                             ?? User.FindFirst("sub")?.Value;
@@ -34,38 +34,51 @@ namespace RecruitmentInterviewManagementSystem.API.Controllers
                 return Unauthorized(new { message = "Không tìm thấy thông tin xác thực UserId hợp lệ trong Token." });
             }
 
-            // 2. Tìm Hồ sơ Employer/Employee tương ứng với UserId này trong DB
-            // (Lưu ý: Thay EmployerProfiles bằng tên bảng thực tế của bạn)
             var employer = await _context.EmployerProfiles.FirstOrDefaultAsync(e => e.UserId == userId);
 
             if (employer == null)
             {
-                // Nếu tài khoản này chưa tạo profile nhà tuyển dụng, trả về mảng rỗng hoặc báo lỗi
                 return NotFound(new { message = "Không tìm thấy hồ sơ Employer cho tài khoản này." });
             }
 
-            // 3. Dùng chính cái employer.Id lấy được từ DB để lấy danh sách đơn hàng
-            var orders = await _orderService.GetOrdersByEmployeeIdAsync(employer.Id);
+            var pagedOrders = await _orderService.GetOrdersByEmployeeIdAsync(employer.Id, pageNumber, pageSize);
 
-            if (orders == null || !orders.Any())
-            {
-                return Ok(new List<object>()); // Chưa có đơn hàng nào
-            }
-
-            return Ok(orders);
+            return Ok(pagedOrders);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOrderDetails(Guid id)
+        [HttpGet("{id}")] 
+        [Authorize] 
+        public async Task<IActionResult> GetOrderById(Guid id)
         {
-            var result = await _orderService.GetOrderDetailsAsync(id);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                            ?? User.FindFirst("id")?.Value
+                            ?? User.FindFirst("sub")?.Value;
 
-            if (result == null)
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out Guid userId))
             {
-                return NotFound(new { message = $"Không tìm thấy Order với Id: {id}" });
+                return Unauthorized(new { message = "Không tìm thấy thông tin xác thực." });
             }
 
-            return Ok(result);
+            var employer = await _context.EmployerProfiles.FirstOrDefaultAsync(e => e.UserId == userId);
+            if (employer == null)
+            {
+                return NotFound(new { message = "Không tìm thấy hồ sơ Employer." });
+            }
+
+            var order = await _orderService.GetOrderDetailsByIdAsync(id);
+
+            if (order == null)
+            {
+                return NotFound(new { message = "Không tìm thấy đơn hàng này." });
+            }
+
+            var dbOrderCheck = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            if (dbOrderCheck != null && dbOrderCheck.EmployerId != employer.Id)
+            {
+                return Forbid(); 
+            }
+
+            return Ok(order);
         }
     }
 }

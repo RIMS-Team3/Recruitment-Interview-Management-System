@@ -1,65 +1,98 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitmentInterviewManagementSystem.Applications.Features.Order.DTO;
+using RecruitmentInterviewManagementSystem.Applications.Features.Order.Interface;
+using RecruitmentInterviewManagementSystem.Applications.Features.PagedResult;
+
+
+// THÊM DÒNG NÀY ĐỂ GỌI DTO CŨ VÀO SERVICE:
+using RecruitmentInterviewManagementSystem.Applications.Features.ServicePackage.DTO;
 using RecruitmentInterviewManagementSystem.Domain.InterfacesRepository;
-using RecruitmentInterviewManagementSystem.Models; // Chứa Entity DbContext của bạn
+using RecruitmentInterviewManagementSystem.Models;
 
 namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
 {
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly FakeTopcvContext _dbContext;
 
-        public OrderService(IOrderRepository orderRepository, FakeTopcvContext dbContext)
+        public OrderService(IOrderRepository orderRepository)
         {
             _orderRepository = orderRepository;
-            _dbContext = dbContext;
         }
 
-        public async Task<OrderDetailDto?> GetOrderDetailsAsync(Guid orderId)
+        public async Task<PagedResult<OrderDto>> GetOrdersByEmployeeIdAsync(Guid employerId, int pageNumber, int pageSize)
         {
-            var order = await _orderRepository.GetOrderWithDetailsByIdAsync(orderId);
+            // Nhận dữ liệu từ Repository
+            var (orders, totalCount) = await _orderRepository.GetOrdersWithDetailsByEmployerIdAsync(employerId, pageNumber, pageSize);
+
+            // Map Entity sang DTO (Đoạn này giữ nguyên y hệt như code cũ của bạn)
+            var orderDtos = orders.Select(o => new OrderDto
+            {
+                Id = o.Id,
+                OrderCode = o.OrderCode,
+                TotalAmount = o.TotalAmount,
+                Status = o.Status,
+                CreatedAt = o.CreatedAt,
+                PaidAt = o.PaidAt,
+                OrderItems = o.OrderItems.Select(oi => new OrderItemDto
+                {
+                    Id = oi.Id,
+                    Price = oi.Price,
+                    Quantity = oi.Quantity,
+                    ServicePackage = oi.ServicePackage != null ? new Applications.Features.Order.DTO.ServicePackageDto
+                    {
+                        Id = oi.ServicePackage.Id,
+                        Name = oi.ServicePackage.Name,
+                        Description = oi.ServicePackage.Description,
+                        Price = oi.ServicePackage.Price,
+                        DurationDays = oi.ServicePackage.DurationDays,
+                        MaxPost = oi.ServicePackage.MaxPost
+                    } : null
+                }).ToList()
+            }).ToList();
+
+            // Gói vào PagedResult
+            return new PagedResult<OrderDto>
+            {
+                Items = orderDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<OrderDto?> GetOrderDetailsByIdAsync(Guid orderId)
+        {
+            var order = await _orderRepository.GetOrderDetailsByIdAsync(orderId);
 
             if (order == null) return null;
 
-            return new OrderDetailDto
+            // Tái sử dụng logic Map sang DTO
+            return new OrderDto
             {
                 Id = order.Id,
                 OrderCode = order.OrderCode,
-                EmployerId = order.EmployerId,
                 TotalAmount = order.TotalAmount,
                 Status = order.Status,
                 CreatedAt = order.CreatedAt,
                 PaidAt = order.PaidAt,
-                OrderItems = order.OrderItems.Select(item => new OrderItemDto
+                OrderItems = order.OrderItems.Select(oi => new OrderItemDto
                 {
-                    Id = item.Id,
-                    ServicePackageId = item.ServicePackageId,
-                    Price = item.Price,
-                    Quantity = item.Quantity
+                    Id = oi.Id,
+                    Price = oi.Price,
+                    Quantity = oi.Quantity,
+                    ServicePackage = oi.ServicePackage != null ? new Applications.Features.Order.DTO.ServicePackageDto
+                    {
+                        Id = oi.ServicePackage.Id,
+                        Name = oi.ServicePackage.Name,
+                        Description = oi.ServicePackage.Description,
+                        Price = oi.ServicePackage.Price,
+                        DurationDays = oi.ServicePackage.DurationDays,
+                        MaxPost = oi.ServicePackage.MaxPost
+                    } : null
                 }).ToList()
             };
         }
 
-
-        public async Task<IEnumerable<OrderDto>> GetOrdersByEmployeeIdAsync(Guid employeeId)
-        {
-            var orders = await _dbContext.Orders
-                .Where(o => o.EmployerId == employeeId) // Lọc cứng theo ID truyền vào
-                .Select(o => new OrderDto
-                {
-                    Id = o.Id,
-                    OrderCode = o.OrderCode,
-                    EmployerId = o.EmployerId,
-                    TotalAmount = o.TotalAmount ?? 0m,
-                    Status = o.Status ?? 0,
-                    CreatedAt = o.CreatedAt ?? DateTime.UtcNow,
-                    PaidAt = o.PaidAt
-                })
-                .OrderByDescending(o => o.CreatedAt)
-                .ToListAsync();
-
-            return orders;
-        }
     }
 }

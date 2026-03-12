@@ -35,7 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Applications\Features\Order\Interface\" />
     <Folder Include="Infastructure\RedisService\" />
   </ItemGroup>
 
