@@ -20,6 +20,7 @@ using System.Text;
 using RecruitmentInterviewManagementSystem.Infastructure.Workers;
 
 using Minio;
+using PayOS;
 namespace RecruitmentInterviewManagementSystem.Start
 {
     public class Program
@@ -93,7 +94,20 @@ namespace RecruitmentInterviewManagementSystem.Start
                     };
                 });
 
-            builder.Services.AddHostedService<AutoUnPost>();
+            //builder.Services.AddHostedService<AutoUnPost>();
+
+            builder.Services.AddSingleton<PayOSClient>(sp =>
+            {
+                return new PayOSClient(new PayOSOptions
+                {
+                    ClientId = builder.Configuration["ClientIDPayOS"],
+                    ApiKey = builder.Configuration["ApiKeytPayOS"],
+                    ChecksumKey = builder.Configuration["ChecksumKeyPOS"]
+                });
+            });
+
+
+
 
             var app = builder.Build();
 

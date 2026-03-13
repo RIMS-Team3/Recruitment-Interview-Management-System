@@ -24,9 +24,26 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
             var user = await _context.Users
                 .FirstOrDefaultAsync(x => x.Email == request.Email);
 
-            // ❌ KHÔNG THROW EXCEPTION NỮA
-            if (user == null)
-                return null;
+            var idUser = Guid.Empty;
+
+            if (user.Role == (int)Role.EMPLOYERER)
+            {
+                idUser = await _context.EmployerProfiles.Where(s => s.UserId == user.Id).Select(s => s.Id).FirstOrDefaultAsync();
+
+            }
+            else if (user.Role == (int)Role.CANDIDATE)
+            {
+
+                idUser = await _context.CandidateProfiles.Where(s => s.UserId == user.Id).Select(s => s.Id).FirstOrDefaultAsync();
+            }
+            else if (user.Role == (int)Role.ADMIN)
+            {
+                idUser = user.Id;
+            }
+
+                // ❌ KHÔNG THROW EXCEPTION NỮA
+                if (user == null)
+                    return null;
 
             var isValid = PasswordHasher.VerifyPassword(
                 request.Password,
@@ -41,7 +58,7 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
                 return null;
 
             var userEntity = new UserEntity(
-                user.Id,
+                idUser,
                 user.Email,
                 user.FullName!,
                 (Role)(user.Role ?? 0),

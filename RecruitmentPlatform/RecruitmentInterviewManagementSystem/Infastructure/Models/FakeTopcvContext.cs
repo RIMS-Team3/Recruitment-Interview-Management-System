@@ -357,7 +357,7 @@ public partial class FakeTopcvContext : DbContext
             entity.Property(e => e.PaidAt).HasColumnType("datetime");
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
 
-            entity.HasOne(d => d.Employer).WithMany(p => p.Orders)
+            entity.HasOne(d => d.Employer).WithMany(p => p.orders)
                 .HasForeignKey(d => d.EmployerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Orders__Employer__22751F6C");

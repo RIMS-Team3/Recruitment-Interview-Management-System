@@ -34,25 +34,11 @@ public class CvsController : ControllerBase
     public async Task<IActionResult> GetMyCandidateId()
     {
         // 1. Lấy UserId từ Token
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
-                         ?? User.FindFirst("id")
-                         ?? User.FindFirst("sub");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
-        {
-            return Unauthorized("Không tìm thấy thông tin xác thực UserId hợp lệ trong Token.");
-        }
-
-        // 2. Tìm ID Ứng viên tương ứng trong DB
-        var candidate = await _context.CandidateProfiles.FirstOrDefaultAsync(c => c.UserId == userId);
-
-        if (candidate == null)
-        {
-            return NotFound("Không tìm thấy hồ sơ ứng viên cho tài khoản này. Vui lòng cập nhật vai trò!");
-        }
 
         // 3. Trả về JSON chứa candidateId
-        return Ok(new { candidateId = candidate.Id });
+        return Ok(new { candidateId = userIdClaim });
     }
     // =======================================================
 

@@ -33,7 +33,7 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role.ToString()), //fixed role claim type
                 new Claim("fullName", user.FullName)

@@ -23,6 +23,8 @@ public partial class User
 
     public string Salt { get; set; } = null!;
 
+    public ICollection<Order> orders { get; set; } = new List<Order>();
+
     public virtual CandidateProfile? CandidateProfile { get; set; }
 
     public virtual EmployerProfile? EmployerProfile { get; set; }
