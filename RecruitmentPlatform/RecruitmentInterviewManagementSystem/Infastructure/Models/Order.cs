@@ -17,9 +17,9 @@ public partial class Order
 
     public DateTime? PaidAt { get; set; }
 
-    public Guid? EmployerId { get; set; }  // ID của nhà tuyển dụng
-    public Guid? CandidateId { get; set; } // ID của ứng viên
-    public virtual User? Employer { get; set; }
+    public Guid UserId { get; set; }
+
+    public virtual User User { get; set; } = null!;
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();

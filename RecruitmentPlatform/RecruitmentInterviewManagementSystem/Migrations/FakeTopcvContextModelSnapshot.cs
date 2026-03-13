@@ -68,7 +68,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Advertisements", (string)null);
+                    b.ToTable("Advertisements");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Infastructure.Models.Banner", b =>
@@ -92,7 +92,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Banners", (string)null);
+                    b.ToTable("Banners");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Infastructure.Models.BookingLink", b =>
@@ -124,7 +124,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasIndex("CandidateProfileId");
 
-                    b.ToTable("BookingLink", (string)null);
+                    b.ToTable("BookingLink");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Infastructure.Models.Interviews", b =>
@@ -158,7 +158,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.HasIndex("IdInterviewSlot")
                         .IsUnique();
 
-                    b.ToTable("Interviews", (string)null);
+                    b.ToTable("Interviews");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Infastructure.Models.InterviewsSlots", b =>
@@ -181,7 +181,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasKey("IdInterviewSlot");
 
-                    b.ToTable("InterviewSlots", (string)null);
+                    b.ToTable("InterviewSlots");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.Application", b =>
@@ -219,7 +219,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.HasIndex(new[] { "JobId", "CandidateId" }, "UQ_Application")
                         .IsUnique();
 
-                    b.ToTable("Applications", (string)null);
+                    b.ToTable("Applications");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.CandidateProfile", b =>
@@ -270,7 +270,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.HasIndex(new[] { "UserId" }, "UQ__Candidat__1788CC4DB5D0361F")
                         .IsUnique();
 
-                    b.ToTable("CandidateProfiles", (string)null);
+                    b.ToTable("CandidateProfiles");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.CandidateSkill", b =>
@@ -289,7 +289,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasIndex("SkillId");
 
-                    b.ToTable("CandidateSkills", (string)null);
+                    b.ToTable("CandidateSkills");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.Company", b =>
@@ -330,7 +330,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Companie__3214EC07BB89D494");
 
-                    b.ToTable("Companies", (string)null);
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.CompanySubscription", b =>
@@ -367,7 +367,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasIndex("ServicePackageId");
 
-                    b.ToTable("CompanySubscriptions", (string)null);
+                    b.ToTable("CompanySubscriptions");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.Cv", b =>
@@ -652,7 +652,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.HasIndex(new[] { "UserId" }, "UQ__Employer__1788CC4D61E45335")
                         .IsUnique();
 
-                    b.ToTable("EmployerProfiles", (string)null);
+                    b.ToTable("EmployerProfiles");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.JobPost", b =>
@@ -717,7 +717,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("JobPosts", (string)null);
+                    b.ToTable("JobPosts");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.Order", b =>
@@ -727,16 +727,10 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
-                    b.Property<Guid?>("CandidateId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(getdate())");
-
-                    b.Property<Guid?>("EmployerId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("OrderCode")
                         .HasMaxLength(50)
@@ -751,16 +745,19 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.Property<decimal?>("TotalAmount")
                         .HasColumnType("decimal(18, 2)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id")
                         .HasName("PK__Orders__3214EC07ABC2DDDE");
 
-                    b.HasIndex("EmployerId");
+                    b.HasIndex("UserId");
 
                     b.HasIndex(new[] { "OrderCode" }, "UQ__Orders__999B5229983DD7F5")
                         .IsUnique()
                         .HasFilter("[OrderCode] IS NOT NULL");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.OrderItem", b =>
@@ -789,7 +786,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasIndex("ServicePackageId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.Payment", b =>
@@ -823,7 +820,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.RefreshToken", b =>
@@ -883,7 +880,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.SavedJob", b =>
@@ -904,7 +901,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasIndex("JobId");
 
-                    b.ToTable("SavedJobs", (string)null);
+                    b.ToTable("SavedJobs");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.ServicePackage", b =>
@@ -943,7 +940,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.HasKey("Id")
                         .HasName("PK__ServiceP__3214EC07AFF571BD");
 
-                    b.ToTable("ServicePackages", (string)null);
+                    b.ToTable("ServicePackages");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.Skill", b =>
@@ -964,7 +961,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                         .IsUnique()
                         .HasFilter("[Name] IS NOT NULL");
 
-                    b.ToTable("Skills", (string)null);
+                    b.ToTable("Skills");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.User", b =>
@@ -1018,7 +1015,7 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.HasIndex(new[] { "Email" }, "UQ__Users__A9D105348C8C58BF")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("JobSkill", b =>
@@ -1240,12 +1237,13 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.Order", b =>
                 {
-                    b.HasOne("RecruitmentInterviewManagementSystem.Models.EmployerProfile", "Employer")
-                        .WithMany("Orders")
-                        .HasForeignKey("EmployerId")
-                        .HasConstraintName("FK__Orders__Employer__22751F6C");
+                    b.HasOne("RecruitmentInterviewManagementSystem.Models.User", "User")
+                        .WithMany("orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Employer");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.OrderItem", b =>
@@ -1355,11 +1353,6 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.Navigation("CvSkills");
                 });
 
-            modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.EmployerProfile", b =>
-                {
-                    b.Navigation("Orders");
-                });
-
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.JobPost", b =>
                 {
                     b.Navigation("Applications");
@@ -1393,6 +1386,8 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.Navigation("EmployerProfile");
 
                     b.Navigation("RefreshTokens");
+
+                    b.Navigation("orders");
                 });
 #pragma warning restore 612, 618
         }

@@ -12,7 +12,7 @@ using RecruitmentInterviewManagementSystem.Models;
 namespace RecruitmentInterviewManagementSystem.Migrations
 {
     [DbContext(typeof(FakeTopcvContext))]
-    [Migration("20260313025727_v16")]
+    [Migration("20260313091331_v16")]
     partial class v16
     {
         /// <inheritdoc />
@@ -730,16 +730,10 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
-                    b.Property<Guid?>("CandidateId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(getdate())");
-
-                    b.Property<Guid?>("EmployerId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("OrderCode")
                         .HasMaxLength(50)
@@ -754,10 +748,13 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.Property<decimal?>("TotalAmount")
                         .HasColumnType("decimal(18, 2)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id")
                         .HasName("PK__Orders__3214EC07ABC2DDDE");
 
-                    b.HasIndex("EmployerId");
+                    b.HasIndex("UserId");
 
                     b.HasIndex(new[] { "OrderCode" }, "UQ__Orders__999B5229983DD7F5")
                         .IsUnique()
@@ -1243,12 +1240,13 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.Order", b =>
                 {
-                    b.HasOne("RecruitmentInterviewManagementSystem.Models.EmployerProfile", "Employer")
-                        .WithMany("Orders")
-                        .HasForeignKey("EmployerId")
-                        .HasConstraintName("FK__Orders__Employer__22751F6C");
+                    b.HasOne("RecruitmentInterviewManagementSystem.Models.User", "User")
+                        .WithMany("orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Employer");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.OrderItem", b =>
@@ -1358,11 +1356,6 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.Navigation("CvSkills");
                 });
 
-            modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.EmployerProfile", b =>
-                {
-                    b.Navigation("Orders");
-                });
-
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.JobPost", b =>
                 {
                     b.Navigation("Applications");
@@ -1396,6 +1389,8 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                     b.Navigation("EmployerProfile");
 
                     b.Navigation("RefreshTokens");
+
+                    b.Navigation("orders");
                 });
 #pragma warning restore 612, 618
         }
