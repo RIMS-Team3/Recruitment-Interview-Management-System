@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Minio.DataModel.Args;
+using RecruitmentInterviewManagementSystem.API.DTOs;
 using RecruitmentInterviewManagementSystem.Applications.Features.Cvs.DTO;
 using RecruitmentInterviewManagementSystem.Applications.Features.Cvs.Interface;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
@@ -60,7 +61,7 @@ public class CvsController : ControllerBase
             CanCreateNew = canCreateNew,
             Cvs = cvs
         };
-        
+
         return Ok(overview);
     }
 
@@ -174,4 +175,29 @@ public class CvsController : ControllerBase
             return StatusCode(500, $"Lỗi server: {ex.Message}");
         }
     }
+
+    // get Service CVPro
+    [HttpGet("cvpro/{cvid}")]
+    public async Task<IActionResult> GetEditorData([FromRoute] Guid cvid)
+    {
+        try
+        {
+            var service = await _context.ServicePackages.FirstOrDefaultAsync(s => s.Id == cvid);
+
+            return Ok(new CVProDTO
+            {
+                IdService = service.Id,
+                Name = service.Name,
+                Description = service.Description,
+                Price = (decimal)service.Price
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Lỗi server: {ex.Message}");
+        }
+    }
+
+
+
 }
