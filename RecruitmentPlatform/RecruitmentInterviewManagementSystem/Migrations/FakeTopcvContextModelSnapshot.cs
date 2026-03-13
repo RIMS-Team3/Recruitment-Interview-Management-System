@@ -727,12 +727,15 @@ namespace RecruitmentInterviewManagementSystem.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
+                    b.Property<Guid?>("CandidateId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(getdate())");
 
-                    b.Property<Guid>("EmployerId")
+                    b.Property<Guid?>("EmployerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("OrderCode")
@@ -750,6 +753,8 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
                     b.HasKey("Id")
                         .HasName("PK__Orders__3214EC07ABC2DDDE");
+
+                    b.HasIndex("CandidateId");
 
                     b.HasIndex("EmployerId");
 
@@ -1237,11 +1242,16 @@ namespace RecruitmentInterviewManagementSystem.Migrations
 
             modelBuilder.Entity("RecruitmentInterviewManagementSystem.Models.Order", b =>
                 {
+                    b.HasOne("RecruitmentInterviewManagementSystem.Models.CandidateProfile", "Candidate")
+                        .WithMany()
+                        .HasForeignKey("CandidateId");
+
                     b.HasOne("RecruitmentInterviewManagementSystem.Models.EmployerProfile", "Employer")
                         .WithMany("Orders")
                         .HasForeignKey("EmployerId")
-                        .IsRequired()
                         .HasConstraintName("FK__Orders__Employer__22751F6C");
+
+                    b.Navigation("Candidate");
 
                     b.Navigation("Employer");
                 });

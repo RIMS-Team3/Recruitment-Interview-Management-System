@@ -9,7 +9,9 @@ public partial class Order
 
     public string? OrderCode { get; set; }
 
-    public Guid EmployerId { get; set; }
+    public Guid? EmployerId { get; set; }
+
+    public Guid? CandidateId { get; set; }
 
     public decimal? TotalAmount { get; set; }
 
@@ -19,7 +21,8 @@ public partial class Order
 
     public DateTime? PaidAt { get; set; }
 
-    public virtual EmployerProfile Employer { get; set; } = null!;
+    public virtual EmployerProfile? Employer { get; set; }
+    public virtual CandidateProfile? Candidate { get; set; }
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
