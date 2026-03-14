@@ -21,6 +21,7 @@ using RecruitmentInterviewManagementSystem.Infastructure.Workers;
 
 using Minio;
 using PayOS;
+using RecruitmentInterviewManagementSystem.Infastructure.HubPayment;
 namespace RecruitmentInterviewManagementSystem.Start
 {
     public class Program
@@ -46,23 +47,23 @@ namespace RecruitmentInterviewManagementSystem.Start
                           .AllowCredentials();
                 });
             });
-
+            builder.Services.AddSignalR();
             builder.Services.AddControllers();
 
-            // 👇 ĐOẠN CODE ĐÃ ĐƯỢC SỬA: Thêm bộ lọc loại trừ IHostedService
+            
             builder.Services.Scan(scan => scan
                  .FromAssemblyOf<ApplicationMarker>()
                  .AddClasses(classes => classes.Where(type => !typeof(Microsoft.Extensions.Hosting.IHostedService).IsAssignableFrom(type)))
                  .AsImplementedInterfaces()
                  .WithScopedLifetime());
-            // 👆 KẾT THÚC ĐOẠN SỬA
+          
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddMinio(configureClient => configureClient
                  .WithEndpoint("103.161.119.162:9000")
-                 .WithCredentials("admin", "2hondaicodon") // Đảm bảo khớp với lệnh Docker của bạn
+                 .WithCredentials("admin", "2hondaicodon") 
                  .WithSSL(false)
                  .Build());
             builder.Services.AddScoped<IMinIOCV, MinIOfaketopcv>();
@@ -92,6 +93,25 @@ namespace RecruitmentInterviewManagementSystem.Start
                         RoleClaimType = ClaimTypes.Role,
                         NameClaimType = JwtRegisteredClaimNames.Email
                     };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                path.StartsWithSegments("/paymentHub"))
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
+
+
                 });
 
             //builder.Services.AddHostedService<AutoUnPost>();
@@ -108,7 +128,7 @@ namespace RecruitmentInterviewManagementSystem.Start
 
 
 
-
+     
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -120,9 +140,13 @@ namespace RecruitmentInterviewManagementSystem.Start
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
+
             app.UseCors("AllowFrontend");
+
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.MapHub<PaymentHub>("/paymentHub");
             app.MapControllers();
 
             app.Run();

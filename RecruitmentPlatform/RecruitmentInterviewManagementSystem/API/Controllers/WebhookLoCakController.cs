@@ -5,6 +5,8 @@ using PayOS;
 using RecruitmentInterviewManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using RecruitmentInterviewManagementSystem.Domain.Enums;
+using RecruitmentInterviewManagementSystem.Infastructure.HubPayment;
+using Microsoft.AspNetCore.SignalR;
 
 namespace RecruitmentInterviewManagementSystem.API.Controllers
 {
@@ -15,12 +17,14 @@ namespace RecruitmentInterviewManagementSystem.API.Controllers
         private readonly PayOSClient _payOSClient;
         private readonly ILogger<WebhookLoCakController> _logger;
         private readonly FakeTopcvContext _db;
+        private readonly IHubContext<PaymentHub> _paymentHub;
 
-        public WebhookLoCakController(PayOSClient payOSClient, ILogger<WebhookLoCakController> logger, FakeTopcvContext fakeTopcvContext)
+        public WebhookLoCakController(PayOSClient payOSClient, ILogger<WebhookLoCakController> logger, FakeTopcvContext fakeTopcvContext, IHubContext<PaymentHub> paymentHub)
         {
             _payOSClient = payOSClient;
             _logger = logger;
             _db = fakeTopcvContext;
+            _paymentHub = paymentHub;
         }
 
         [HttpPost("payos/webhook")]
@@ -33,7 +37,7 @@ namespace RecruitmentInterviewManagementSystem.API.Controllers
 
                 if (webhookData.Code == "00" && webhookData.Description == "CVPRO")
                 {
-
+                    await _paymentHub.Clients.All.SendAsync("PaidOrder", $"Bạn đã thành toán thành công {webhookData.Amount}");
                     var order = await _db.Orders.FirstOrDefaultAsync(o => o.OrderCode == webhookData.OrderCode.ToString());
                     if (order != null)
                     {
@@ -46,12 +50,13 @@ namespace RecruitmentInterviewManagementSystem.API.Controllers
                         var Candidate = await _db.CandidateProfiles.FirstOrDefaultAsync(c => c.UserId == order.UserId);
                         if (Candidate != null) Candidate.IsCvPro = true;
                         await _db.SaveChangesAsync();
+                        await _paymentHub.Clients.All.SendAsync("PaidOrder", $"Bạn đã thành toán thành công {webhookData.Amount}");
                         await transaction.CommitAsync();
 
                     }
 
                 }
-                else if(webhookData.Code == "00" && webhookData.Description == "CVPRO_RENEW")
+                else if (webhookData.Code == "00" && webhookData.Description == "CVPRO_RENEW")
                 {
 
                 }
