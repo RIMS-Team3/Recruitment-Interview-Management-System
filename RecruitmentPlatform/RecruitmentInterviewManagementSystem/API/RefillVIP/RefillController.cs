@@ -33,10 +33,24 @@ namespace RecruitmentInterviewManagementSystem.API.RefillVIP
         }
 
         [HttpGet("{idUser}")]
-        public async Task<IActionResult> GetBalance([FromRoute]Guid idUser)
+        public async Task<IActionResult> GetBalance([FromRoute] Guid idUser)
         {
             var balance = await _refill.Execute(idUser);
             return Ok(balance);
+        }
+
+        [HttpPost("gift-code")]
+        public async Task<IActionResult> GiftCodeBeginer([FromBody] CodeBeginer code)
+        {
+            var result = await _refill.GiftCodeBeginer(code);
+            if (result)
+            {
+                return Ok(new { Message = "Chúc người AE may mắn" });
+            }
+            else
+            {
+                return BadRequest(new { Message = "Mã không hợp lệ hoặc đã sử dụng " });
+            }
         }
     }
 }

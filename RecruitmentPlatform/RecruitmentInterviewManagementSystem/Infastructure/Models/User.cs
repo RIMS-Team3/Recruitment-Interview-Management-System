@@ -25,6 +25,10 @@ public partial class User
 
     public decimal Coin { get; set; } = 0;
 
+    public string BeginnerCode { get; set; } = "2HONDAICODON";
+
+    public bool  IsActivedCodeBeginer { get; set; } = false;
+
     public ICollection<Order> orders { get; set; } = new List<Order>();
 
     public virtual CandidateProfile? CandidateProfile { get; set; }

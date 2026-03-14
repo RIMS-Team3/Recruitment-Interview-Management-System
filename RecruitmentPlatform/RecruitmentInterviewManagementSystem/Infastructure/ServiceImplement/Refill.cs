@@ -105,5 +105,37 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
         {
             return await _db.Users.Where(u => u.Id == idUser).Select(u => u.Coin).FirstOrDefaultAsync();
         }
+
+        public async Task<bool> GiftCodeBeginer(CodeBeginer request)
+        {
+            const string BEGINNER_CODE = "2HONDAICODON";
+
+            if (request.Code != BEGINNER_CODE)
+                return false;
+
+            await using var transaction = await _db.Database.BeginTransactionAsync();
+
+            try
+            {
+                var user = await _db.Users
+                    .FirstOrDefaultAsync(u => u.Id == request.IdUser);
+
+                if (user == null || user.IsActivedCodeBeginer)
+                    return false;
+
+                user.Coin += 500000;
+                user.IsActivedCodeBeginer = true;
+
+                await _db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
+        }
     }
 }
