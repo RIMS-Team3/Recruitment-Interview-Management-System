@@ -96,17 +96,20 @@ public class AuthController : ControllerBase
     [HttpPost("select-role")]
     public async Task<IActionResult> SelectRole([FromBody] SelectRoleRequest request)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
-                     ?? User.FindFirst("id")
-                     ?? User.FindFirst("sub");
+        //var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
+        //             ?? User.FindFirst("id")
+        //             ?? User.FindFirst("sub");
+
+
+        var userIdClaim = request.Id;
 
         if (userIdClaim == null)
             return Unauthorized("Token không chứa userId");
 
-        if (!Guid.TryParse(userIdClaim.Value, out Guid userId))
-            return BadRequest("UserId trong token không hợp lệ");
+        //if (!Guid.TryParse(userIdClaim.Value, out Guid userId))
+        //    return BadRequest("UserId trong token không hợp lệ");
 
-        var user = await _context.Users.FindAsync(userId);
+        var user = await _context.Users.FindAsync(userIdClaim);
 
         if (user == null)
             return NotFound("User không tồn tại");

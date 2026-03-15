@@ -41,8 +41,8 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
                 idUser = user.Id;
             }
 
-                // ❌ KHÔNG THROW EXCEPTION NỮA
-                if (user == null)
+            // ❌ KHÔNG THROW EXCEPTION NỮA
+            if (user == null)
                     return null;
 
             var isValid = PasswordHasher.VerifyPassword(
@@ -58,7 +58,7 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
                 return null;
 
             var userEntity = new UserEntity(
-                idUser,
+               idUser,
                 user.Email,
                 user.FullName!,
                 (Role)(user.Role ?? 0),
