@@ -60,11 +60,27 @@ namespace RecruitmentInterviewManagementSystem.Applications.TaiOrXiuFeature.HubR
                 }
             }
 
+
+
             await Groups.RemoveFromGroupAsync(connectionId, ROOM);
 
             await Clients.Group(ROOM).SendAsync("OnlineCount", OnlineUsers.Count);
 
             await base.OnDisconnectedAsync(exception);
         }
+
+        public async Task SendMessage(string email,string message)
+        {
+           
+            var name = email?.Split('@')[0];
+            await Clients.Group(ROOM).SendAsync("ReceiveMessage", new
+            {
+                UserName = name,
+                Message = message,
+                Time = DateTime.Now
+            });
+        }
+
+
     }
 }

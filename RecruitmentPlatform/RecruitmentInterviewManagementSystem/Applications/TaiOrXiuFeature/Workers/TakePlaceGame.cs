@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RecruitmentInterviewManagementSystem.Applications.TaiOrXiuFeature;
@@ -12,11 +13,13 @@ namespace RecruitmentInterviewManagementSystem.Applications.TaiOrXiuFeature.Work
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IHubContext<TaiXiuHub> _hub;
         private readonly ILogger<TakePlaceGame> _logger;
+
         private const string ROOM = "taixiu-room";
 
         public TakePlaceGame(
             IServiceScopeFactory scopeFactory,
-            IHubContext<TaiXiuHub> hub , ILogger<TakePlaceGame> logger)
+            IHubContext<TaiXiuHub> hub,
+            ILogger<TakePlaceGame> logger)
         {
             _scopeFactory = scopeFactory;
             _hub = hub;
@@ -32,6 +35,9 @@ namespace RecruitmentInterviewManagementSystem.Applications.TaiOrXiuFeature.Work
                 var gameService = scope.ServiceProvider
                     .GetRequiredService<IGameRounds>();
 
+                var db = scope.ServiceProvider
+                    .GetRequiredService<FakeTopcvContext>();
+
                 try
                 {
                     // 1️⃣ Tạo round
@@ -39,16 +45,33 @@ namespace RecruitmentInterviewManagementSystem.Applications.TaiOrXiuFeature.Work
 
                     Console.WriteLine($"Round started: {round.IdGame}");
 
-                    // gửi realtime cho frontend
                     await _hub.Clients.Group(ROOM)
                         .SendAsync("RoundStart", round.IdGame);
 
-                    // 2️⃣ countdown 20s
+                    // 2️⃣ Countdown + cập nhật tổng tiền cược
                     for (int i = 40; i >= 0; i--)
                     {
                         await _hub.Clients.Group(ROOM)
                             .SendAsync("Countdown", i);
-                        //_logger.LogInformation($"Countdown: {i} seconds remaining");
+
+                        // lấy tổng tiền cược của ván
+                        var totalTai = await db.Bets
+                            .Where(x => x.IdGame == round.IdGame && x.BetType == "Tai")
+                            .SumAsync(x => (decimal?)x.Amount) ?? 0;
+
+                        var totalXiu = await db.Bets
+                            .Where(x => x.IdGame == round.IdGame && x.BetType == "Xiu")
+                            .SumAsync(x => (decimal?)x.Amount) ?? 0;
+
+                        // gửi realtime tổng tiền
+                        await _hub.Clients.Group(ROOM)
+                            .SendAsync("UpdateTotalBet", new
+                            {
+                                Tai = totalTai,
+                                Xiu = totalXiu,
+                                Total = totalTai + totalXiu
+                            });
+
                         await Task.Delay(1000, stoppingToken);
                     }
 
@@ -63,20 +86,13 @@ namespace RecruitmentInterviewManagementSystem.Applications.TaiOrXiuFeature.Work
                     // 4️⃣ tung xúc xắc + set result
                     await gameService.SetResult(round.IdGame);
 
-                    var currentRound = await gameService.GetCurrentRound();
-
-                    Console.WriteLine($"Dice rolled");
-
-                    // lấy kết quả từ DB
-                    using var scope2 = _scopeFactory.CreateScope();
-                    var db = scope2.ServiceProvider.GetRequiredService<FakeTopcvContext>();
+                    Console.WriteLine("Dice rolled");
 
                     var resultRound = await db.GameRounds
                         .FindAsync(round.IdGame);
 
                     if (resultRound != null)
                     {
-                        // gửi kết quả cho frontend
                         await _hub.Clients.Group(ROOM)
                             .SendAsync("Result", new
                             {
@@ -90,9 +106,9 @@ namespace RecruitmentInterviewManagementSystem.Applications.TaiOrXiuFeature.Work
                     // 5️⃣ trả thưởng
                     await gameService.PayReward(round.IdGame);
 
-                    Console.WriteLine($"Reward paid");
+                    Console.WriteLine("Reward paid");
 
-                    // 6️⃣ nghỉ 15s trước round mới
+                    // 6️⃣ nghỉ trước round mới
                     for (int i = 15; i >= 0; i--)
                     {
                         await _hub.Clients.Group(ROOM)
@@ -103,7 +119,7 @@ namespace RecruitmentInterviewManagementSystem.Applications.TaiOrXiuFeature.Work
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Game loop error: {ex.Message}");
+                    _logger.LogError(ex, "Game loop error");
                 }
             }
         }
