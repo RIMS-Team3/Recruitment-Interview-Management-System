@@ -66,7 +66,7 @@ namespace RecruitmentInterviewManagementSystem.Start
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddMinio(configureClient => configureClient
-                 .WithEndpoint("103.161.119.162:9000")
+                 .WithEndpoint("127.0.0.1:9000")
                  .WithCredentials("admin", "2hondaicodon") 
                  .WithSSL(false)
                  .Build());
