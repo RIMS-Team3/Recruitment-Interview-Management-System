@@ -59,6 +59,8 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.MinIO
                         .WithExpiry(60 * 60)
                 );
 
+                url = url.Replace("http://127.0.0.1:9000", "https://itlocak.xyz");
+
                 return url;
             }
             catch (Minio.Exceptions.ObjectNotFoundException)
