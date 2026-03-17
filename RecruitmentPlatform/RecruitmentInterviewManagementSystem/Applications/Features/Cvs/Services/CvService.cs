@@ -24,9 +24,28 @@ namespace RecruitmentInterviewManagementSystem.Applications.Features.Cvs.Service
 
         public async Task<IEnumerable<CvSummaryDto>> GetCvsByCandidateAsync(Guid candidateId)
         {
-            var rawCvs = await _cvRepository.GetCvsByCandidateIdAsync(candidateId);
+            // 1. Kiểm tra xem cái candidateId truyền vào là ProfileId hay UserId
+            // Đầu tiên, thử tìm Profile theo UserId
+            var profile = await _context.CandidateProfiles
+                .FirstOrDefaultAsync(p => p.UserId == candidateId);
 
-            // 👉 LỌC BỎ CÁC CV ĐÃ XÓA MỀM (IsDeleted == true)
+            Guid actualProfileId;
+
+            if (profile != null)
+            {
+                // Nếu tìm thấy profile theo UserId, thì dùng Id của Profile đó
+                actualProfileId = profile.Id;
+            }
+            else
+            {
+                // Nếu không thấy, có thể ID truyền vào đã là ProfileId rồi
+                actualProfileId = candidateId;
+            }
+
+            // 2. Truy vấn danh sách CV bằng actualProfileId (ID chuẩn của bảng Profile)
+            var rawCvs = await _cvRepository.GetCvsByCandidateIdAsync(actualProfileId);
+
+            // 3. Lọc bỏ các CV đã xóa mềm
             var activeCvs = rawCvs.Where(cv => cv.IsDeleted == false);
 
             return activeCvs.Select(cv => new CvSummaryDto
@@ -54,17 +73,34 @@ namespace RecruitmentInterviewManagementSystem.Applications.Features.Cvs.Service
 
         public async Task<CvDetailDto> CreateCvAsync(CreateCvRequest request)
         {
+            // 1. Kiểm tra đầu vào cơ bản
             if (string.IsNullOrWhiteSpace(request.FullName))
                 throw new ArgumentException("Họ tên không được để trống.");
 
-            var candidateExists = await _cvRepository.CandidateProfileExistsAsync(request.CandidateId);
-            if (!candidateExists)
-                throw new KeyNotFoundException("Không tìm thấy hồ sơ ứng viên.");
+            // 2. XỬ LÝ MAPPING ID: Tìm Profile ứng viên dựa trên ID gửi từ FE (đang là UserId)
+            // Chúng ta tìm trong bảng CandidateProfiles xem có dòng nào có UserId trùng với request.CandidateId không
+            var profile = await _context.CandidateProfiles
+                .FirstOrDefaultAsync(p => p.UserId == request.CandidateId);
 
+            // Nếu không tìm thấy theo UserId, thử kiểm tra xem bản thân request.CandidateId có phải là ProfileId không
+            if (profile == null)
+            {
+                profile = await _context.CandidateProfiles
+                    .FirstOrDefaultAsync(p => p.Id == request.CandidateId);
+            }
+
+            // Nếu vẫn không thấy thì mới báo lỗi thực sự
+            if (profile == null)
+                throw new KeyNotFoundException("Không tìm thấy hồ sơ ứng viên (Profile) tương ứng với tài khoản này.");
+
+            // Lưu lại ID thực sự của bảng Profile
+            var actualProfileId = profile.Id;
+
+            // 3. Khởi tạo thực thể CV
             var cv = new Cv
             {
                 Id = Guid.NewGuid(),
-                CandidateId = request.CandidateId,
+                CandidateId = actualProfileId, // Dùng ID của Profile để lưu vào DB
                 FullName = request.FullName,
                 Email = request.Email,
                 PhoneNumber = request.PhoneNumber,
@@ -81,24 +117,30 @@ namespace RecruitmentInterviewManagementSystem.Applications.Features.Cvs.Service
                 TemplateId = request.TemplateId ?? "tpl-1",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                IsDeleted = false // Khởi tạo mặc định là chưa xóa
+                IsDeleted = false
             };
 
+            // 4. Xử lý File đính kèm (nếu có) qua MinIO
             if (request.File != null && request.File.Length > 0)
             {
                 var bucketName = _configuration["Minio:CvBucket"] ?? "cvs";
                 var objectName = await _minioService.UploadAsync(request.File, bucketName);
+
                 cv.FileName = request.File.FileName;
                 cv.MimeType = request.File.ContentType;
                 cv.FileUrl = objectName;
             }
 
+            // 5. Nếu CV này là mặc định, reset các CV khác của ứng viên này
             if (cv.IsDefault == true)
             {
-                await _cvRepository.ResetDefaultCvForCandidateAsync(request.CandidateId);
+                await _cvRepository.ResetDefaultCvForCandidateAsync(actualProfileId);
             }
 
+            // 6. Lưu vào cơ sở dữ liệu
             await _cvRepository.AddCvAsync(cv);
+
+            // 7. Map kết quả trả về DTO cho Frontend
             return await MapToDetailDto(cv);
         }
 
