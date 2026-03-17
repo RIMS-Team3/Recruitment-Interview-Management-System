@@ -2,7 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using RecruitmentInterviewManagementSystem.Applications.Features.Application.DTO;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
+using RecruitmentInterviewManagementSystem.Applications.Notifications.Producers;
 using RecruitmentInterviewManagementSystem.Domain.Enums;
+using RecruitmentInterviewManagementSystem.Infastructure.Models;
 using RecruitmentInterviewManagementSystem.Models;
 using System;
 using System.Collections.Generic;
@@ -18,11 +20,13 @@ namespace RecruitmentInterviewManagementSystem.API.Controllers
     {
         private readonly FakeTopcvContext _context;
         private readonly IMinIOCV _minioService;
+        private readonly INotificationInterviewProducer _notificationProducer;
 
-        public EmployerApplicationsController(FakeTopcvContext context, IMinIOCV minioService)
+        public EmployerApplicationsController(FakeTopcvContext context, IMinIOCV minioService, INotificationInterviewProducer notificationInterviewProducer)
         {
             _context = context;
             _minioService = minioService;
+            _notificationProducer = notificationInterviewProducer;
         }
 
         [HttpGet]
@@ -106,9 +110,44 @@ namespace RecruitmentInterviewManagementSystem.API.Controllers
         [HttpPatch("{id:guid}/status")]
         public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateStatusDTO request)
         {
-            var application = await _context.Applications.FindAsync(id);
+            var application = await _context.Applications
+                .Include(a => a.Job) // Nên include để lấy thông tin gửi mail sau này
+                .FirstOrDefaultAsync(a => a.Id == id);
+
             if (application == null) return NotFound();
+
             application.Status = (int)request.NewStatus;
+
+            if (application.Status == (int)ApplicationStatus.Accepted)
+            {
+                // 1. Kiểm tra xem đã tồn tại token chưa để tránh trùng lặp
+                var existingToken = await _context.InterviewBookingTokens
+                    .AnyAsync(t => t.ApplicationId == id && !t.IsUsed);
+
+                if (!existingToken)
+                {
+                    var bookingToken = new InterviewBookingToken
+                    {
+                        Id = Guid.NewGuid(),
+                        ApplicationId = application.Id,
+                        Token = Guid.NewGuid().ToString(),
+                        ExpiredAt = DateTime.UtcNow.AddDays(7),
+                        CreatedAt = DateTime.UtcNow,
+                        IsUsed = false
+                    };
+
+                    _context.InterviewBookingTokens.Add(bookingToken);
+
+
+                    await _notificationProducer.Execute(new Applications.Notifications.DTO.NotificationDTOS
+                    {
+                        Email = application.Candidate.User.Email,
+                        Name = application.Candidate.User.FullName ?? "Người Đẹp",
+                        TypeService = "Email",
+                        Link = $"https://topcv.com/interview-booking?token={bookingToken.Token}"
+                    });
+                }
+            }
             await _context.SaveChangesAsync();
             return NoContent();
         }

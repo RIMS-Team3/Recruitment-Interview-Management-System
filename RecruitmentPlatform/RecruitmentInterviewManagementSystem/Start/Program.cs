@@ -24,6 +24,8 @@ using PayOS;
 using RecruitmentInterviewManagementSystem.Infastructure.HubPayment;
 using RecruitmentInterviewManagementSystem.Applications.TaiOrXiuFeature.Workers;
 using RecruitmentInterviewManagementSystem.Applications.TaiOrXiuFeature.HubResult;
+using RecruitmentInterviewManagementSystem.Applications.Notifications.Interfaces;
+using System.Threading.RateLimiting;
 namespace RecruitmentInterviewManagementSystem.Start
 {
     public class Program
@@ -37,6 +39,28 @@ namespace RecruitmentInterviewManagementSystem.Start
             builder.Services.AddDbContext<FakeTopcvContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration["SQLURL"]);
+            });
+
+            builder.Services.AddRateLimiter(options =>
+            {
+              
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 100,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 10 
+                        }));
+
+              
+                options.OnRejected = async (context, token) =>
+                {
+                    context.HttpContext.Response.StatusCode = 429;
+                    await context.HttpContext.Response.WriteAsync("ĐỊT CON MẸ MÀY THÍCH SPAM REQUEST KHÔNG THẰNG LỒN - MOTHERFUCKER", token);
+                };
             });
 
             builder.Services.AddCors(options =>
@@ -54,24 +78,31 @@ namespace RecruitmentInterviewManagementSystem.Start
             builder.Services.AddSignalR();
             builder.Services.AddControllers();
 
-            
+
             builder.Services.Scan(scan => scan
-                 .FromAssemblyOf<ApplicationMarker>()
-                 .AddClasses(classes => classes.Where(type => !typeof(Microsoft.Extensions.Hosting.IHostedService).IsAssignableFrom(type)))
-                 .AsImplementedInterfaces()
-                 .WithScopedLifetime());
-          
+       .FromAssemblyOf<ApplicationMarker>()
+       .AddClasses(classes => classes.Where(type =>
+              !typeof(Microsoft.Extensions.Hosting.IHostedService).IsAssignableFrom(type) &&
+              type != typeof(Email) 
+       ))
+       .AsImplementedInterfaces()
+       .WithScopedLifetime());
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddMinio(configureClient => configureClient
                  .WithEndpoint("127.0.0.1:9000")
-                 .WithCredentials("admin", "2hondaicodon") 
+                 .WithCredentials("admin", "2hondaicodon")
                  .WithSSL(false)
                  .Build());
             builder.Services.AddScoped<IMinIOCV, MinIOfaketopcv>();
             builder.Services.AddHostedService<TakePlaceGame>();
+
+            builder.Services.AddSingleton<INotification, Email>();
+            builder.Services.AddHostedService<EmailWorker>();
+
+
             var jwtSecret = builder.Configuration["Authentication:Jwt:Secret"]
                             ?? throw new Exception("JWT Secret not configured");
             var jwtIssuer = builder.Configuration["Authentication:Jwt:Issuer"];
@@ -115,8 +146,6 @@ namespace RecruitmentInterviewManagementSystem.Start
                             return Task.CompletedTask;
                         }
                     };
-
-
                 });
 
             //builder.Services.AddHostedService<AutoUnPost>();
@@ -132,8 +161,12 @@ namespace RecruitmentInterviewManagementSystem.Start
             });
 
 
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = builder.Configuration["Redis"];
+                options.InstanceName = "ITLOCAK";
+            });
 
-     
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
