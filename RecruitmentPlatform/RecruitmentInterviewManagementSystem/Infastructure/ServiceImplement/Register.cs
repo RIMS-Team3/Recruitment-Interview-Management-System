@@ -1,5 +1,6 @@
 ﻿using RecruitmentInterviewManagementSystem.Applications.Features.Auth.DTO;
 using RecruitmentInterviewManagementSystem.Applications.Features.Interface;
+using RecruitmentInterviewManagementSystem.Applications.Notifications.Producers;
 using RecruitmentInterviewManagementSystem.Domain.Entities;
 using RecruitmentInterviewManagementSystem.Domain.Enums;
 using RecruitmentInterviewManagementSystem.Infastructure.Repository;
@@ -11,11 +12,13 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
     {
         private readonly FakeTopcvContext _context;
         private readonly IJwtService _jwtService;
+        private readonly IEmailProducer _emailproducer;
 
-        public Register(FakeTopcvContext context, IJwtService jwtService)
+        public Register(FakeTopcvContext context, IJwtService jwtService, IEmailProducer emailProducer)
         {
             _context = context;
             _jwtService = jwtService;
+            _emailproducer = emailProducer;
         }
 
         public async Task<RegisterResponse> RegisterAsync(RegisterRequest request)
@@ -52,6 +55,14 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
             );
 
             var token = _jwtService.GenerateToken(userEntity);
+
+
+            await _emailproducer.Execute(new Applications.Notifications.DTO.NotificationDTOS
+            {
+                Email = user.Email,
+                Name = user.FullName!,
+                TypeService = "Email"
+            });
 
             return new RegisterResponse
             {

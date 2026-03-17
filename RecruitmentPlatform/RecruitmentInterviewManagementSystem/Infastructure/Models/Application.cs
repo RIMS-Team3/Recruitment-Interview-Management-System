@@ -27,4 +27,6 @@ public partial class Application
 
     public virtual ICollection<Interviews>? Interviews { get; set; }
 
+    public virtual ICollection<InterviewBookingToken>? InterviewBookingTokens { get; set; }
+
 }
