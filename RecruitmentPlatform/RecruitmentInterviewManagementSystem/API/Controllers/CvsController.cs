@@ -31,29 +31,43 @@ public class CvsController : ControllerBase
     // API MỚI: LẤY CANDIDATE ID TỪ TOKEN
     // =======================================================
     [HttpGet("my-candidate-id")]
-    [Authorize] // Bắt buộc phải có token truyền lên
-    public async Task<IActionResult> GetMyCandidateId()
+    [Authorize]
+    public IActionResult GetMyCandidateId()
     {
-        // 1. Lấy UserId từ Token
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-
-        // 3. Trả về JSON chứa candidateId
-        return Ok(new { candidateId = userIdClaim });
+        var profileId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return Ok(new { candidateId = profileId });
     }
     // =======================================================
 
     [HttpGet("candidate/{candidateId:guid}")]
     public async Task<ActionResult<CandidateCvOverviewDto>> GetByCandidate(Guid candidateId)
     {
-        var candidateProfile = await _context.CandidateProfiles.FirstOrDefaultAsync(c => c.Id == candidateId);
+        // 1. Thử tìm hồ sơ bằng cách coi candidateId là UserId (vì Frontend đang gửi UserId)
+        var candidateProfile = await _context.CandidateProfiles
+            .FirstOrDefaultAsync(c => c.UserId == candidateId);
+
+        // 2. Nếu không tìm thấy, thử tìm coi candidateId là ProfileId (trường hợp gọi đúng ID)
         if (candidateProfile == null)
         {
-            return NotFound("Không tìm thấy hồ sơ ứng viên.");
+            candidateProfile = await _context.CandidateProfiles
+                .FirstOrDefaultAsync(c => c.Id == candidateId);
         }
-        var cvs = await _cvService.GetCvsByCandidateAsync(candidateId);
+
+        // 3. Nếu cả 2 cách đều không thấy, thì mới trả về NotFound
+        if (candidateProfile == null)
+        {
+            return NotFound("Không tìm thấy hồ sơ ứng viên tương ứng với tài khoản này.");
+        }
+
+        // 4. Lấy actualProfileId từ đối tượng tìm được để truyền vào Service
+        var actualProfileId = candidateProfile.Id;
+
+        // 5. Gọi Service với ID chuẩn
+        var cvs = await _cvService.GetCvsByCandidateAsync(actualProfileId);
         var currentCvCount = cvs.Count();
+
         bool canCreateNew = candidateProfile.IsCvPro || currentCvCount < 2;
+
         var overview = new CandidateCvOverviewDto
         {
             IsCvPro = candidateProfile.IsCvPro,
