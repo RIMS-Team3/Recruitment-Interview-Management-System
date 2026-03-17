@@ -100,8 +100,9 @@ namespace RecruitmentInterviewManagementSystem.Start
             builder.Services.AddHostedService<TakePlaceGame>();
 
             builder.Services.AddSingleton<INotification, Email>();
-            builder.Services.AddHostedService<EmailWorker>();
 
+            builder.Services.AddHostedService<EmailWorker>();
+            builder.Services.AddHostedService<NotificationInterviewWorker>();
 
             var jwtSecret = builder.Configuration["Authentication:Jwt:Secret"]
                             ?? throw new Exception("JWT Secret not configured");

@@ -18,14 +18,12 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.Workers
         private IChannel _channel;
         private IConnection _connection;
 
-        public NotificationInterviewWorker(IConfiguration iConfig, IEnumerable<INotification> notifications, ILogger<NotificationInterviewWorker> logger, IServiceScopeFactory scopeFactory, IChannel channel, IConnection connection)
+        public NotificationInterviewWorker(IConfiguration iConfig, IEnumerable<INotification> notifications, ILogger<NotificationInterviewWorker> logger, IServiceScopeFactory scopeFactory)
         {
             _iConfig = iConfig;
             _notifications = notifications;
             _logger = logger;
             _scopeFactory = scopeFactory;
-            _channel = channel;
-            _connection = connection;
         }
 
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
