@@ -121,8 +121,8 @@ namespace RecruitmentInterviewManagementSystem.API.Controllers
             if (application == null) return NotFound();
 
 
-            var candidate = await _context.CandidateProfiles.FirstOrDefaultAsync(s=>s.Id == application.CandidateId);
-            if(candidate == null) return NotFound();
+            var candidate = await _context.CandidateProfiles.FirstOrDefaultAsync(s => s.Id == application.CandidateId);
+            if (candidate == null) return NotFound();
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == candidate.UserId);
             application.Status = (int)request.NewStatus;
 
@@ -149,13 +149,22 @@ namespace RecruitmentInterviewManagementSystem.API.Controllers
 
                     await _notificationProducer.Execute(new Applications.Notifications.DTO.NotificationDTOS
                     {
-                        Email =  user.Email ,
-                        Name = user.FullName ??"Candidate",
+                        Email = user.Email,
+                        Name = user.FullName ?? "Candidate",
                         TypeService = "Email",
-                        Link = $"https://topcv.com/interview-booking?token={bookingToken.Token}"
+                        Link = $"https://itlocak.xyz/interview-schedule/{bookingToken.Token}"
                     });
                 }
             }
+            //else if (application.Status == (int)ApplicationStatus.Rejected)
+            //{
+            //    await _notificationProducer.Execute(new Applications.Notifications.DTO.NotificationDTOS
+            //    {
+            //        Email = user.Email,
+            //        Name = user.FullName ?? "Candidate",
+            //        TypeService = "Email"
+            //    });
+            //}
             await _context.SaveChangesAsync();
             return NoContent();
         }
