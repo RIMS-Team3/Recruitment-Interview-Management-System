@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RecruitmentInterviewManagementSystem.Applications.Features.Cvs.DTO;
 using RecruitmentInterviewManagementSystem.Applications.Features.Cvs.Interface;
@@ -7,6 +8,7 @@ using RecruitmentInterviewManagementSystem.Models;
 namespace RecruitmentInterviewManagementSystem.API.Controllers;
 
 [Route("api/cvs/{cvId:guid}/editor")]
+[Authorize]
 [ApiController]
 public class CvsEditorController : ControllerBase
 {

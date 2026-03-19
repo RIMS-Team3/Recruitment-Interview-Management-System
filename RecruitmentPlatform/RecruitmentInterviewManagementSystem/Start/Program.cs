@@ -29,6 +29,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using RecruitmentInterviewManagementSystem.Applications.Features.Cvs.Validators;
 using StackExchange.Redis;
+using RecruitmentInterviewManagementSystem.Infastructure.Validators;
 namespace RecruitmentInterviewManagementSystem.Start
 {
     public class Program
@@ -83,7 +84,7 @@ namespace RecruitmentInterviewManagementSystem.Start
 
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<UpdateCvEditorRequestValidator>();
-
+            builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
             builder.Services.Scan(scan => scan
        .FromAssemblyOf<ApplicationMarker>()
