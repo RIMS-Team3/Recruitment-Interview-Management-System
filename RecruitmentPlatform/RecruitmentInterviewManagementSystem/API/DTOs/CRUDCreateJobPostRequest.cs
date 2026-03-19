@@ -26,5 +26,5 @@ public class CRUDCreateJobPostRequest
     [Required(ErrorMessage = "Ngày hết hạn là bắt buộc")]
     public DateTime? ExpireAt { get; set; }
 
-    public int Experience { get; set; }
+    public int Experience { get; set; } = 0;
 }
