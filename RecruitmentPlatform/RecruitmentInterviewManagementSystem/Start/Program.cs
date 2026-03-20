@@ -47,7 +47,7 @@ namespace RecruitmentInterviewManagementSystem.Start
 
             builder.Services.AddRateLimiter(options =>
             {
-              
+
                 options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
                     RateLimitPartition.GetFixedWindowLimiter(
                         partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -56,10 +56,10 @@ namespace RecruitmentInterviewManagementSystem.Start
                             PermitLimit = 100,
                             Window = TimeSpan.FromMinutes(1),
                             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                            QueueLimit = 10 
+                            QueueLimit = 10
                         }));
 
-              
+
                 options.OnRejected = async (context, token) =>
                 {
                     context.HttpContext.Response.StatusCode = 429;
@@ -90,7 +90,7 @@ namespace RecruitmentInterviewManagementSystem.Start
        .FromAssemblyOf<ApplicationMarker>()
        .AddClasses(classes => classes.Where(type =>
               !typeof(Microsoft.Extensions.Hosting.IHostedService).IsAssignableFrom(type) &&
-              type != typeof(Email) 
+              type != typeof(Email)
        ))
        .AsImplementedInterfaces()
        .WithScopedLifetime());
