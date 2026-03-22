@@ -121,7 +121,7 @@ namespace RecruitmentInterviewManagementSystem.Infastructure.ServiceImplement
                 <li><b>Trạng thái:</b> Đã xác nhận</li>
             </ul>
             <p>Vui lòng chuẩn bị kỹ lưỡng và có mặt đúng giờ. Nếu có bất kỳ thay đổi nào, bạn vui lòng liên hệ với bộ phận nhân sự của công ty.</p>
-            <p>Note,<br/>Nếu đây là nhầm lẫn thì hãy liện hệ cho bộ phận chăm sóc khác hàng của ITLOCAK Corporation</p>"";
+            <p>Note,<br/>Nếu đây là nhầm lẫn thì hãy liện hệ cho bộ phận chăm sóc khác hàng của ITLOCAK Corporation</p>;
             <p>Trân trọng,<br/>Đội ngũ Tuyển dụng</p>";
 
                         await _informBooking.Execute(new Applications.Notifications.DTO.NotificationDTOS
