@@ -90,7 +90,7 @@ namespace RecruitmentInterviewManagementSystem.Start
        .FromAssemblyOf<ApplicationMarker>()
        .AddClasses(classes => classes.Where(type =>
               !typeof(Microsoft.Extensions.Hosting.IHostedService).IsAssignableFrom(type) &&
-              type != typeof(Email) 
+              type != typeof(Email)
        ))
        .AsImplementedInterfaces()
        .WithScopedLifetime());
