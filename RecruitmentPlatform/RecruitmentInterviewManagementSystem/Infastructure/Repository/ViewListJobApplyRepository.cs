@@ -7,7 +7,7 @@ namespace RecruitmentInterviewManagementSystem.Repositories
 {
     public class ViewListJobApplyRepository : IViewListJobApplyRepository
     {
-        private readonly FakeTopcvContext _context; // Thay bằng tên DbContext của bạn
+        private readonly FakeTopcvContext _context; 
 
         public ViewListJobApplyRepository(FakeTopcvContext context) => _context = context;
 
